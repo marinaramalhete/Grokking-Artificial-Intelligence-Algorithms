@@ -22,7 +22,7 @@ def choose_move(connect, depth):
     print('Thinking...')
     move_result = False
     # Search for a move until a valid one is found
-    while move_result is False:
+    while not move_result:
         move_result = minmax(connect, depth, MAX, 0, INFINITY_NEGATIVE, INFINITY_POSITIVE).move
     return move_result
 
@@ -38,11 +38,10 @@ def minmax(connect, depth, min_or_max, move, alpha, beta):
     best_score = INFINITY_NEGATIVE * min_or_max
     best_max_move = -1
     # Get possible moves given the board size
-    moves = random.sample(range(0, connect.board_size_y + 1), connect.board_size_x)
+    moves = random.sample(range(connect.board_size_y + 1), connect.board_size_x)
     for slot in moves:
         neighbor = copy.deepcopy(connect)
-        move_outcome = neighbor.play_move(slot)
-        if move_outcome:
+        if move_outcome := neighbor.play_move(slot):
             # Recursively call minmax for the next state after playing a move
             best = minmax(neighbor, depth - 1, min_or_max * -1, slot, alpha, beta)
             # Update the best score and best move, ignore irrelevant scores using alpha beta pruning

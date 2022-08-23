@@ -130,25 +130,18 @@ class Simulator:
 
     # Determine if the target point is within bounds
     def is_within_bounds(self, target_x, target_y):
-        if self.road_size_x > target_x >= 0 and self.road_size_y > target_y >= 0:
-            return True
-        return False
+        return self.road_size_x > target_x >= 0 and self.road_size_y > target_y >= 0
 
     # Determine if the goal is achieved
     def is_goal_achieved(self):
-        if self.agent_x == self.goal_x and self.agent_y == self.goal_y:
-            return True
-        return False
+        return self.agent_x == self.goal_x and self.agent_y == self.goal_y
 
     # Get the state. This is a string encoding based on the immediate neighbors around the current point
     def get_state(self):
         state = ''
         for x in range(-1, 2):
             for y in range(-1, 2):
-                if self.is_within_bounds(x, y):
-                    state += self.road[x][y]
-                else:
-                    state += ROAD_OUT_OF_BOUNDS
+                state += self.road[x][y] if self.is_within_bounds(x, y) else ROAD_OUT_OF_BOUNDS
         if state not in self.states:
             self.states.append(state)
         return self.states.index(state)
@@ -247,7 +240,7 @@ def train_with_q_learning(observation_space, action_space, number_of_iterations,
     q_table = np.zeros([observation_space, action_space], dtype=np.int8)
 
     # Repeat for a number of iterations
-    for i in range(number_of_iterations):
+    for _ in range(number_of_iterations):
         # Reset the simulator
         simulator = Simulator(DEFAULT_ROAD, DEFAULT_ROAD_SIZE_X, DEFAULT_ROAD_SIZE_Y, DEFAULT_START_X, DEFAULT_START_Y,
                               DEFAULT_GOAL_X, DEFAULT_GOAL_Y)
@@ -258,10 +251,11 @@ def train_with_q_learning(observation_space, action_space, number_of_iterations,
         while not done:
             action = COMMAND_SOUTH
             # Choose a random action or choose the best move from the Q-table given the current state
-            if random.uniform(0, 1) > chance_of_random_move:
-                action = get_random_action()
-            else:
-                action = np.argmax(q_table[state])
+            action = (
+                get_random_action()
+                if random.uniform(0, 1) > chance_of_random_move
+                else np.argmax(q_table[state])
+            )
 
             # Apply the selected action to the simulation and get the changed state and reward
             reward = simulator.move_agent(action)
@@ -290,7 +284,7 @@ def execute_with_q_learning(q_table, number_of_episodes):
     total_penalties_car = 0
 
     # Repeat for a number of episodes
-    for episode in range(number_of_episodes):
+    for _ in range(number_of_episodes):
         # Initialize a simulator
         simulator = Simulator(DEFAULT_ROAD,
                               DEFAULT_ROAD_SIZE_X, DEFAULT_ROAD_SIZE_Y,

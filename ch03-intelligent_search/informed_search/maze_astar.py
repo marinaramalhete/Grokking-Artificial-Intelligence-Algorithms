@@ -18,17 +18,15 @@ def run_astar(maze_game, current_point):
         # If the current node hasn't already been exploited, search it
         if not is_in_visited_points(next_point, visited_points):
             visited_points.append(next_point)
-            # Return the path to the current neighbor if it is the goal
             if maze_game.get_current_point_value(next_point) == '*':
                 return next_point
-            else:
-                # Add all the current node's neighbors to the stack
-                neighbors = maze_game.get_neighbors(next_point)
-                for neighbor in neighbors:
-                    neighbor.set_parent(next_point)
-                    neighbor.cost = determine_cost(next_point, neighbor)
-                stack.extend(neighbors)
-                stack.sort(key=lambda x: x.cost, reverse=True)
+            # Add all the current node's neighbors to the stack
+            neighbors = maze_game.get_neighbors(next_point)
+            for neighbor in neighbors:
+                neighbor.set_parent(next_point)
+                neighbor.cost = determine_cost(next_point, neighbor)
+            stack.extend(neighbors)
+            stack.sort(key=lambda x: x.cost, reverse=True)
     return "No path to the goal found"
 
 
@@ -41,10 +39,11 @@ def determine_cost(origin, target):
 
 # Function to determine if the point has already been visited
 def is_in_visited_points(current_point, visited_points):
-    for visited_point in visited_points:
-        if current_point.x == visited_point.x and current_point.y == visited_point.y:
-            return True
-    return False
+    return any(
+        current_point.x == visited_point.x
+        and current_point.y == visited_point.y
+        for visited_point in visited_points
+    )
 
 
 print('---A* Search---')

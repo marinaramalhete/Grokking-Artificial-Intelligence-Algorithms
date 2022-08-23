@@ -38,9 +38,11 @@ import numpy as np
 def scale_dataset(dataset, feature_count, feature_min, feature_max):
     scaled_data = []
     for data in dataset:
-        example = []
-        for i in range(0, feature_count):
-            example.append(scale_data_feature(data[i], feature_min[i], feature_max[i]))
+        example = [
+            scale_data_feature(data[i], feature_min[i], feature_max[i])
+            for i in range(feature_count)
+        ]
+
         scaled_data.append(example)
     return np.array(scaled_data)
 
@@ -124,7 +126,7 @@ def run_neural_network(feature_data, label_data, feature_count, features_min, fe
     # Initialize a neural network with the scaled data and hidden nodes
     nn = NeuralNetwork(scaled_feature_data, label_data, hidden_node_count)
     # Train the artificial neural network over many iterations with the same training data
-    for epoch in range(epochs):
+    for _ in range(epochs):
         nn.forward_propagation()
         nn.back_propagation()
 

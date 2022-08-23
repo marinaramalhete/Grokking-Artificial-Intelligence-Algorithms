@@ -54,7 +54,7 @@ knapsack_items = [
 # Get all possible combinations of items. This is exhaustive and computationally expensive!
 def get_all_combinations(items):
     combinations = []
-    for index in range(0, len(items)):
+    for index in range(len(items)):
         combinations.append(items[index])
         possibilities = [list(x) for x in itertools.combinations(items, index)]
         combinations.append(possibilities)
@@ -66,15 +66,13 @@ def calculate_individual_fitness(solution, maximum_weight):
     total_weight = 0
     total_value = 0
     # Get the values and weight for each item marked with a 1
-    for item_index in range(0, len(solution)):
+    for item_index in range(len(solution)):
         item = solution[item_index]
         if item == 1:
             total_weight += knapsack_items[item_index][KNAPSACK_WEIGHT_INDEX]
             total_value += knapsack_items[item_index][KNAPSACK_VALUE_INDEX]
     # Zero fitness if the weight constraint is violated
-    if total_weight > maximum_weight:
-        return 0
-    return total_value
+    return 0 if total_weight > maximum_weight else total_value
 
 
 # Run the brute force algorithm
@@ -84,8 +82,7 @@ def run_brute_force():
     best_individual = []
     knapsack_max_capacity = 10
     print('Number of combinations: ', 2**bit_string_size)
-    iteration = 0
-    for i in product([0, 1], repeat=bit_string_size):
+    for iteration, i in enumerate(product([0, 1], repeat=bit_string_size)):
         current = calculate_individual_fitness(i, knapsack_max_capacity)
         if current > best_score:
             best_score = current
@@ -93,8 +90,6 @@ def run_brute_force():
             print('Iteration: ', iteration)
             print('Best score: ', best_score)
             print('Best individual: ', best_individual)
-        iteration += 1
-
     print(best_individual)
 
 

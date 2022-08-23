@@ -78,8 +78,8 @@ INDIVIDUAL_PROBABILITY_INDEX = 2
 # Generate an initial population of random individuals
 def generate_initial_population(population_size):
     population = []
-    for individual in range(0, population_size):
-        individual = ''.join([random.choice('01') for n in range(26)])
+    for individual in range(population_size):
+        individual = ''.join([random.choice('01') for _ in range(26)])
         population.append([individual, 0, 0])
     return population
 
@@ -123,12 +123,12 @@ def roulette_wheel_selection(population, number_of_selections):
     set_probabilities(population)
     slices = []
     total = 0
-    for r in range(0, len(population)):
+    for r in range(len(population)):
         individual = population[r]
         slices.append([r, total, total + individual[INDIVIDUAL_PROBABILITY_INDEX]])
         total += individual[INDIVIDUAL_PROBABILITY_INDEX]
     chosen_ones = []
-    for r in range(number_of_selections):
+    for _ in range(number_of_selections):
         spin = random.random()
         result = [s[0] for s in slices if s[1] < spin <= s[2]]
         chosen_ones.append(population[result[0]])
@@ -137,30 +137,34 @@ def roulette_wheel_selection(population, number_of_selections):
 
 # Reproduce children given two individuals using one point crossover
 def one_point_crossover(parent_a, parent_b, xover_point):
-    children = [parent_a[:xover_point] + parent_b[xover_point:],
-                parent_b[:xover_point] + parent_a[xover_point:]]
-    return children
+    return [
+        parent_a[:xover_point] + parent_b[xover_point:],
+        parent_b[:xover_point] + parent_a[xover_point:],
+    ]
 
 
 # Reproduce children given two individuals using two point crossover
 def two_point_crossover(parent_a, parent_b, xover_point_1, xover_point_2):
-    children = [parent_a[:xover_point_1] + parent_b[xover_point_1:xover_point_2] + parent_a[xover_point_2:],
-                parent_b[:xover_point_1] + parent_a[xover_point_1:xover_point_2] + parent_b[xover_point_2:]]
-    return children
+    return [
+        parent_a[:xover_point_1]
+        + parent_b[xover_point_1:xover_point_2]
+        + parent_a[xover_point_2:],
+        parent_b[:xover_point_1]
+        + parent_a[xover_point_1:xover_point_2]
+        + parent_b[xover_point_2:],
+    ]
 
 
 # Randomly mutate children
 def mutate_children(children, mutation_rate):
     for child in children:
         random_index = random.randint(0, mutation_rate)
+        mutated_child = list(child[INDIVIDUAL_CHROMOSOME_INDEX])
         if child[INDIVIDUAL_CHROMOSOME_INDEX][random_index] == '1':
-            mutated_child = list(child[INDIVIDUAL_CHROMOSOME_INDEX])
             mutated_child[random_index] = '0'
-            child[INDIVIDUAL_CHROMOSOME_INDEX] = mutated_child
         else:
-            mutated_child = list(child[INDIVIDUAL_CHROMOSOME_INDEX])
             mutated_child[random_index] = '1'
-            child[INDIVIDUAL_CHROMOSOME_INDEX] = mutated_child
+        child[INDIVIDUAL_CHROMOSOME_INDEX] = mutated_child
     return children
 
 
@@ -193,7 +197,7 @@ NUMBER_OF_ITERATIONS = 5
 def run_ga():
     best_global_fitness = 0
     global_population = generate_initial_population(INITIAL_POPULATION_SIZE)
-    for generation in range(NUMBER_OF_GENERATIONS):
+    for _ in range(NUMBER_OF_GENERATIONS):
         current_best_fitness = calculate_population_fitness(global_population, KNAPSACK_WEIGHT_CAPACITY)
         if current_best_fitness > best_global_fitness:
             best_global_fitness = current_best_fitness
@@ -201,8 +205,6 @@ def run_ga():
         the_children = reproduce_children(the_chosen)
         the_children = mutate_children(the_children, MUTATION_RATE)
         global_population = merge_population_and_children(global_population, the_children)
-        # print(global_population)
-
     print('Best fitness: ', best_global_fitness)
     print('Actual best: ', BEST_LARGE_KNAPSACK_SCORE)
     print('Accuracy: ', best_global_fitness / BEST_LARGE_KNAPSACK_SCORE * 100)
@@ -217,7 +219,7 @@ def run_ga():
 
 
 # Run the genetic algorithm for a number of iterations
-for i in range(0, NUMBER_OF_ITERATIONS):
+for _ in range(NUMBER_OF_ITERATIONS):
     run_ga()
 
 # print(calculate_individual_fitness('01100100010110001110001001', 6404180))

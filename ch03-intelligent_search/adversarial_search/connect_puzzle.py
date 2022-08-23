@@ -26,17 +26,14 @@ class Connect:
 
     # Generate an empty board to begin on reset the game
     def generate_board(self, board_size_x, board_size_y):
-        board = []
-        for x in range(board_size_x):
-            row = BOARD_EMPTY_SLOT * board_size_y
-            board.append(row)
-        return board
+        row = BOARD_EMPTY_SLOT * board_size_y
+        return [row for _ in range(board_size_x)]
 
     # Print the board to console
     def print_board(self):
         result = ''
-        for y in range(0, self.board_size_y):
-            for x in range(0, self.board_size_x):
+        for y in range(self.board_size_y):
+            for x in range(self.board_size_x):
                 result += self.board[x][y]
             result += '\n'
         print(result)
@@ -60,9 +57,7 @@ class Connect:
     def get_score_for_ai(self):
         if self.has_a_row(PLAYER_HUMAN, 4):
             return -10
-        if self.has_a_row(PLAYER_AI, 4):
-            return 10
-        return 0
+        return 10 if self.has_a_row(PLAYER_AI, 4) else 0
 
     # Determine if a player has a row
     def has_a_row(self, player, row_count):
@@ -82,53 +77,47 @@ class Connect:
         for i in range(row_count):
             target_x = x + (i * offset_x)
             target_y = y + (i * offset_y)
-            if self.is_within_bounds(target_x, target_y):
-                if self.board[target_x][target_y] == player:
-                    total += 1
-        if total == row_count:
-            return True
-        return False
+            if (
+                self.is_within_bounds(target_x, target_y)
+                and self.board[target_x][target_y] == player
+            ):
+                total += 1
+        return total == row_count
 
     # Determine if a specific x,y pair is within bounds of the board
     def is_within_bounds(self, x, y):
-        if 0 <= x < self.board_size_x and 0 <= y < self.board_size_y:
-            return True
-        return False
+        return 0 <= x < self.board_size_x and 0 <= y < self.board_size_y
 
     # Determine if the entire board is filled with disks
     def is_board_full(self):
-        for x in range(self.board_size_x):
-            if BOARD_EMPTY_SLOT in self.board[x]:
-                return False
-        return True
+        return all(
+            BOARD_EMPTY_SLOT not in self.board[x] for x in range(self.board_size_x)
+        )
 
     # Determine if a slot is full
     def is_slot_full(self, slot_number):
-        if BOARD_EMPTY_SLOT in self.board[slot_number]:
-            return False
-        return True
+        return BOARD_EMPTY_SLOT not in self.board[slot_number]
 
     # Determine if a slot number is empty
     def is_slot_empty(self, slot_number):
-        count = 0
-        for i in range(self.board_size_y):
-            if self.board[slot_number][i] == BOARD_EMPTY_SLOT:
-                count += 1
-        if count == self.board_size_y:
-            return True
-        return False
+        count = sum(
+            self.board[slot_number][i] == BOARD_EMPTY_SLOT
+            for i in range(self.board_size_y)
+        )
+
+        return count == self.board_size_y
 
     # Execute a move for a player
     def execute_move(self, player, slot_number):
         row = self.board[slot_number]
         # Place the disk at the bottom if the slot number is empty
         if self.is_slot_empty(slot_number):
-            self.board[slot_number] = row[0:self.board_size_y - 1] + player
+            self.board[slot_number] = row[:self.board_size_y - 1] + player
         else:
             # Place the disk at the next empty slot if the slot number is not empty
-            for i in range(0, self.board_size_y - 1):
+            for i in range(self.board_size_y - 1):
                 if row[i + 1] != BOARD_EMPTY_SLOT:
-                    self.board[slot_number] = row[0:i] + player + row[i + 1:]
+                    self.board[slot_number] = row[:i] + player + row[i + 1:]
                     break
 
     # Execute a move for a player if there's space in the slot and choose the player based on whose turn it is

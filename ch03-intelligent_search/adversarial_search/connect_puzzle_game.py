@@ -12,7 +12,7 @@ while connect.has_winner() == 0:
 
     connect.print_turn()
     human_move_result = False
-    while human_move_result is False:
+    while not human_move_result:
         print('Make your move: ')
         human_move = int(input())
         human_move_result = connect.play_move(human_move)

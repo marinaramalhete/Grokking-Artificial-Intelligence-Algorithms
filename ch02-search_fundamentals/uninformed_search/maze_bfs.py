@@ -37,10 +37,11 @@ def run_bfs(maze_puzzle, current_point, visited_points):
 
 # Function to determine if the point has already been visited
 def is_in_visited_points(current_point, visited_points):
-    for visited_point in visited_points:
-        if current_point.x == visited_point.x and current_point.y == visited_point.y:
-            return True
-    return False
+    return any(
+        current_point.x == visited_point.x
+        and current_point.y == visited_point.y
+        for visited_point in visited_points
+    )
 
 
 print('---Breadth-first Search---')

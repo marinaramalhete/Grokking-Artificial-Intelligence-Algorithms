@@ -20,7 +20,7 @@ ideal_diamonds = data[data['cut'] == "Ideal"]
 
 # Plot the filtered data as a scatter plot
 fig = plt.figure()
-plt.title(feature_x + ' vs ' + feature_y)
+plt.title(f'{feature_x} vs {feature_y}')
 
 plt.scatter(fair_diamonds[feature_x], fair_diamonds[feature_y], label="Fair", s=1.8)
 plt.scatter(good_diamonds[feature_x], good_diamonds[feature_y], label="Good", s=1.8)
