@@ -55,21 +55,25 @@ class MazePuzzle:
         potential_neighbors = [[NORTH.x, NORTH.y], [SOUTH.x, SOUTH.y], [EAST.x, EAST.y], [WEST.x, WEST.y]]
         for neighbor in potential_neighbors:
             target_point = Point(current_point.x + neighbor[0], current_point.y + neighbor[1])
-            if 0 <= target_point.x < self.maze_size_x and 0 <= target_point.y < self.maze_size_y:
-                if self.get_current_point_value(target_point) != '#':
-                    neighbors.append(target_point)
+            if (
+                0 <= target_point.x < self.maze_size_x
+                and 0 <= target_point.y < self.maze_size_y
+                and self.get_current_point_value(target_point) != '#'
+            ):
+                neighbors.append(target_point)
         return neighbors
 
     # A function to visually show a set of points visited in the maze
     def overlay_points_on_map(self, points):
         overlay_map = copy.deepcopy(self.maze)
         for point in points:
-            new_row = overlay_map[point.x][:point.y] + '@' + overlay_map[point.x][point.y + 1:]
+            new_row = f'{overlay_map[point.x][:point.y]}@{overlay_map[point.x][point.y + 1:]}'
+
             overlay_map[point.x] = new_row
 
         result = ''
-        for x in range(0, self.maze_size_x):
-            for y in range(0, self.maze_size_y):
+        for x in range(self.maze_size_x):
+            for y in range(self.maze_size_y):
                 result += overlay_map[x][y]
             result += '\n'
         print(result)
@@ -78,8 +82,8 @@ class MazePuzzle:
 
     def print_maze(self):
         result = ''
-        for x in range(0, self.maze_size_x):
-            for y in range(0, self.maze_size_y):
+        for x in range(self.maze_size_x):
+            for y in range(self.maze_size_y):
                 result += self.maze[x][y]
             result += '\n'
         print(result)
@@ -142,6 +146,4 @@ GRAVITY_COST = 5
 
 
 def get_cost(direction):
-    if direction == 'N' or direction == 'S':
-        return GRAVITY_COST
-    return STANDARD_COST
+    return GRAVITY_COST if direction in ['N', 'S'] else STANDARD_COST

@@ -33,7 +33,7 @@ def sigmoid_derivative(x):
     return sigmoid(x)*(1-sigmoid(x))
 
 
-for epoch in range(10000):
+for _ in range(10000):
     # Multiply every input with it's respective weight and sum the outputs
     weight_and_sum_results = np.dot(dataset, weights) + bias
     # Apply the sigmoid activation function to all the input sums

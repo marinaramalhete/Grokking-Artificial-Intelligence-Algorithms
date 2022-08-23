@@ -7,19 +7,18 @@ start = time.time()
 
 # Load the carnival attraction distances from a CSV file
 attraction_count = 48
-attraction_data_file = 'attractions-' + str(attraction_count) + '.csv'
+attraction_data_file = f'attractions-{attraction_count}.csv'
 attraction_distances = []
 with open(attraction_data_file) as file:
     reader = csv.reader(file, quoting=csv.QUOTE_NONNUMERIC)
-    for row in reader:
-        attraction_distances.append(row)
+    attraction_distances.extend(iter(reader))
 print('Done loading attraction distances')
 
 # Initialize the best distance and best permutation
 best_distance = math.inf
 best_permutation = None
 # Determine the distance score for every permutation to find the best
-for attraction_permutation in itertools.permutations(range(0, attraction_count)):
+for attraction_permutation in itertools.permutations(range(attraction_count)):
     last_attraction = attraction_permutation[0]
     total_distance = 0
     for attraction_index in range(1, len(attraction_permutation)):

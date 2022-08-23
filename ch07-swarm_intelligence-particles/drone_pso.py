@@ -151,18 +151,21 @@ class Swarm:
         p2 = Particle(-1, 9, INERTIA, COGNITIVE_CONSTANT, SOCIAL_CONSTANT)
         p3 = Particle(5, -1, INERTIA, COGNITIVE_CONSTANT, SOCIAL_CONSTANT)
         p4 = Particle(-2, -5, INERTIA, COGNITIVE_CONSTANT, SOCIAL_CONSTANT)
-        particles = [p1, p2, p3, p4]
-        return particles
+        return [p1, p2, p3, p4]
 
     # Return a randomized swarm of particles
     @staticmethod
     def get_random_swarm(number_of_particles):
-        particles = []
-        for p in range(number_of_particles):
-            particles.append(Particle(random.randint(-10, 10),
-                                      random.randint(-10, 10),
-                                      INERTIA, COGNITIVE_CONSTANT, SOCIAL_CONSTANT))
-        return particles
+        return [
+            Particle(
+                random.randint(-10, 10),
+                random.randint(-10, 10),
+                INERTIA,
+                COGNITIVE_CONSTANT,
+                SOCIAL_CONSTANT,
+            )
+            for _ in range(number_of_particles)
+        ]
 
     # Get the best particle in the swarm based on its fitness
     def get_best_in_swarm(self):
@@ -177,7 +180,7 @@ class Swarm:
 
     # Run the PSO lifecycle for every particle in the swarm
     def run_pso(self):
-        for t in range(0, self.number_of_iterations):
+        for _ in range(self.number_of_iterations):
             best_particle = self.get_best_in_swarm()
             for p in self.swarm:
                 p.update(best_particle.x, best_particle.y)

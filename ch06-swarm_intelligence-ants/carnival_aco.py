@@ -14,11 +14,9 @@ ATTRACTION_COUNT = 48
 # Initialize the 2D matrix for storing distances between attractions
 attraction_distances = []
 # Read attraction distance data set store it in matrix
-with open('attractions-' + str(ATTRACTION_COUNT) + '.csv') as file:
+with open(f'attractions-{ATTRACTION_COUNT}.csv') as file:
     reader = csv.reader(file, quoting=csv.QUOTE_NONNUMERIC)
-    for row in reader:
-        attraction_distances.append(row)
-
+    attraction_distances.extend(iter(reader))
 # Set the probability of ants choosing a random attraction to visit (0.0 - 1.0)
 RANDOM_ATTRACTION_FACTOR = 0.0
 # Set the weight for pheromones on path for selection
@@ -50,14 +48,14 @@ class Ant:
 
     # Select an attraction using a random chance
     def visit_random_attraction(self):
-        all_attractions = set(range(0, ATTRACTION_COUNT))
+        all_attractions = set(range(ATTRACTION_COUNT))
         possible_attractions = all_attractions - set(self.visited_attractions)
         return random.randint(0, len(possible_attractions) - 1)
 
     # Calculate probabilities of visiting adjacent unvisited attractions
     def visit_probabilistic_attraction(self, pheromone_trails):
         current_attraction = self.visited_attractions[-1]
-        all_attractions = set(range(0, ATTRACTION_COUNT))
+        all_attractions = set(range(ATTRACTION_COUNT))
         possible_attractions = all_attractions - set(self.visited_attractions)
         possible_indexes = []
         possible_probabilities = []
@@ -80,7 +78,7 @@ class Ant:
         possible_indexes = probabilities[0]
         possible_probabilities = probabilities[1]
         possible_attractions_count = probabilities[2]
-        for i in range(0, possible_attractions_count):
+        for i in range(possible_attractions_count):
             slices.append([possible_indexes[i], total, total + possible_probabilities[i]])
             total += possible_probabilities[i]
         spin = random.random()
@@ -89,9 +87,13 @@ class Ant:
 
     # Get the total distance travelled by this ant
     def get_distance_travelled(self):
-        total_distance = 0
-        for a in range(1, len(self.visited_attractions)):
-            total_distance += attraction_distances[self.visited_attractions[a]][self.visited_attractions[a-1]]
+        total_distance = sum(
+            attraction_distances[self.visited_attractions[a]][
+                self.visited_attractions[a - 1]
+            ]
+            for a in range(1, len(self.visited_attractions))
+        )
+
         total_distance += attraction_distances[self.visited_attractions[0]][self.visited_attractions[len(self.visited_attractions) - 1]]
         return total_distance
 
@@ -137,15 +139,13 @@ class ACO:
     def setup_ants(self, number_of_ants_factor):
         number_of_ants = round(ATTRACTION_COUNT * number_of_ants_factor)
         self.ant_colony.clear()
-        for i in range(0, number_of_ants):
+        for _ in range(number_of_ants):
             self.ant_colony.append(Ant())
 
     # Initialize pheromone trails between attractions
     def setup_pheromones(self):
-        for r in range(0, len(attraction_distances)):
-            pheromone_list = []
-            for i in range(0, len(attraction_distances)):
-                pheromone_list.append(1)
+        for _ in range(len(attraction_distances)):
+            pheromone_list = [1 for _ in range(len(attraction_distances))]
             self.pheromone_trails.append(pheromone_list)
 
     # Move all ants to a new attraction
@@ -164,8 +164,8 @@ class ACO:
 
     # Update pheromone trails based ant movements - after one tour of all attractions
     def update_pheromones(self, evaporation_rate):
-        for x in range(0, ATTRACTION_COUNT):
-            for y in range(0, ATTRACTION_COUNT):
+        for x in range(ATTRACTION_COUNT):
+            for y in range(ATTRACTION_COUNT):
                 self.pheromone_trails[x][y] = self.pheromone_trails[x][y] * evaporation_rate
                 for ant in self.ant_colony:
                     self.pheromone_trails[x][y] += 1 / ant.get_distance_travelled()
@@ -173,9 +173,9 @@ class ACO:
     # Tie everything together - this is the main loop
     def solve(self, total_iterations, evaporation_rate):
         self.setup_pheromones()
-        for i in range(0, TOTAL_ITERATIONS):
+        for i in range(TOTAL_ITERATIONS):
             self.setup_ants(NUMBER_OF_ANTS_FACTOR)
-            for r in range(0, ATTRACTION_COUNT - 1):
+            for _ in range(ATTRACTION_COUNT - 1):
                 self.move_ants(self.ant_colony)
             self.update_pheromones(evaporation_rate)
             self.best_ant = self.get_best(self.ant_colony)

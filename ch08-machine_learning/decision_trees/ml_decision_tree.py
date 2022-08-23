@@ -33,7 +33,7 @@ class Question:
         return value >= self.value
 
     def to_string(self):
-        return 'Is ' + feature_names[self.feature] + ' >= ' + str(self.value) + '?'
+        return f'Is {feature_names[self.feature]} >= {str(self.value)}?'
 
 
 # The ExamplesNode class defines a node in the tree that contains classified examples
@@ -76,11 +76,10 @@ def split_examples(examples, question):
 # Calculate the Gini Index based on a list of examples
 def calculate_gini(examples):
     label_counts = find_unique_label_counts(examples)
-    uncertainty = 1
-    for label in label_counts:
-        probability_of_label = label_counts[label] / float(len(examples))
-        uncertainty -= probability_of_label ** 2
-    return uncertainty
+    return 1 - sum(
+        (label_counts[label] / float(len(examples))) ** 2
+        for label in label_counts
+    )
 
 
 # Calculate the information gain based on the left gini, right gini, and current uncertainty
@@ -91,8 +90,7 @@ def calculate_information_gain(left_gini, right_gini, current_uncertainty):
     gini_right = calculate_gini(right_gini)
     entropy_right = len(right_gini) / total * gini_right
     uncertainty_after = entropy_left + entropy_right
-    information_gain = current_uncertainty - uncertainty_after
-    return information_gain
+    return current_uncertainty - uncertainty_after
 
 
 # Fine the best split for a list of examples based on its features
@@ -101,7 +99,7 @@ def find_best_split(examples, number_of_features):
     best_question = None
     current_uncertainty = calculate_gini(examples)
     for feature_index in range(number_of_features):
-        values = set([example[feature_index] for example in examples])
+        values = {example[feature_index] for example in examples}
         for value in values:
             question = Question(feature_index, value)
             examples_true, examples_false = split_examples(examples, question)
@@ -127,15 +125,15 @@ def build_tree(examples):
 def print_tree(node, indentation=''):
     # The examples in the current ExamplesNode
     if isinstance(node, ExamplesNode):
-        print(indentation + 'Examples', node.examples)
+        print(f'{indentation}Examples', node.examples)
         return
     # The question for the current DecisionNode
     print(indentation + str(node.question.to_string()))
     # Find the 'True' examples for the current DecisionNode recursively
-    print(indentation + '---> True:')
+    print(f'{indentation}---> True:')
     print_tree(node.branch_true, indentation + '\t')
     # Find the 'False' examples for the current DecisionNode recursively
-    print(indentation + '---> False:')
+    print(f'{indentation}---> False:')
     print_tree(node.branch_false, indentation + '\t')
 
 
